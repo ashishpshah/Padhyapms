@@ -1,0 +1,118 @@
+﻿
+@model ResponseModel<Service>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout_Admin.cshtml";
+
+}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <button type="button" id="btnAddNewItem" class="btn btn-primary btn-md pull-right mr-2 divformSave_Hide"
+                        onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm","Service", new {  area = "Admin" })');">
+                    <i class="fas fa-plus"></i> &nbsp; Add New
+                </button>
+                @* } *@
+                <button type="button" id="btnBackToList" class="btn btn-warning btn-md pull-right mr-2 divformSave_Display d-none" onclick="fnBackToList();">
+                    <i class="fas fa-arrow-left"></i> &nbsp; Back To List
+                </button>
+            </div>
+            <h4 class="page-title">Service</h4>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header p-0 divformSave_Display d-none">
+                <form id="formSave" action="@Url.Action("Save","Service", new {  area = "Admin"})" method="post">
+                    <div class="row no-gutters" id="divformSave"></div>
+                </form>
+            </div>
+            <div class="card-body divformSave_Hide">
+                <div class="row no-gooters ">
+                    <div class="col-md-12 my-1">
+                        <div class="responsive-table-plugin">
+                            <div class="table-rep-plugin">
+                                <div class="table-responsive" data-pattern="priority-columns">
+                                    <table class="table table-sm table-bordered table-striped dt-responsive nowrap w-100 table_Common_SrNo">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.No.</th>
+                                                <th>Service Name</th>
+                                                <th>Display Order</th>
+                                                <th>Short Description</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @if (Model.ObjList != null)
+                                            {
+                                                foreach (var item in Model.ObjList)
+                                                {
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>@item.ServiceName</td>
+                                                        <td>@item.DisplayOrder</td>
+                                                        <td>@item.ShortDescription</td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                
+                                                                    <button type="button" class="btn btn-info btn-sm btn-flat" data-toggle="tooltip" data-placement="top" title="Edit"
+                                                                        onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm", "Service", new { area = "Admin" })?Id=@item.Id');">
+                                                                        <i class="ri-pencil-fill"></i>
+                                                                    </button>
+                                                               
+                                                                    <button type="button" class="btn btn-danger btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete"
+                                                                            onclick="fnDelete_Confirm('@Url.Action("DeleteConfirmed","Service", new {  area = "Admin" })?Id=@item.Id');">
+                                                                        <i class="ri-delete-bin-2-line"></i>
+                                                                    </button>
+                                                                
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div> 
+
+                            </div> 
+                        </div> 
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        function fnBtnAddNewItem() {
+
+            var rowCount = $('#ServiceChecklist_Table tbody tr').length;
+            let newRowId = "tr_" + rowCount;
+            
+
+            let newRow = `<tr id="${newRowId}">
+            <td><input type="text" id="ServiceChecklist_${rowCount}_ItemName" name="ServiceChecklist[${rowCount}].ItemName" class="form-control" value=""  /></td>
+            <td><input type="text" id="ServiceChecklist_${rowCount}_DisplayOrder" name="ServiceChecklist[${rowCount}].DisplayOrder" class="form-control isNumberKey" value="" onkeyup="calculateRow(this)" /></td>
+            <td><div><button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete">
+            <i class="ri-delete-bin-2-line"></i></button></div></td></tr>`;
+
+
+             
+            $("#ServiceChecklist_Table tbody").append(newRow);
+
+            rowCount++;
+        }
+
+        $(document).on('click', '.deletebtn', function () {
+        	$(this).closest('tr').remove(); // Find the closest row (<tr>) to the clicked delete button and remove it
+        });
+    </script>
+}
+

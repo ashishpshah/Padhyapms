@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using PMMS.Areas.Admin.Services;
 using PMMS.Controllers;
 using PMMS.Infra;
@@ -11,15 +10,15 @@ using System.Net.Mail;
 namespace PMMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ClientController : BaseController<ResponseModel<Client>>
+    public class ServiceController : BaseController<ResponseModel<Service>>
     {
-        public ClientController(IRepositoryWrapper repository) : base(repository) { }
+        public ServiceController(IRepositoryWrapper repository) : base(repository) { }
         public IActionResult Index()
         {
-            CommonViewModel.ObjList = new List<Client>();
+            CommonViewModel.ObjList = new List<Service>();
             try
             {
-               CommonViewModel.ObjList = ClientServices.GET(0).ToList();
+               CommonViewModel.ObjList = ServiceServices.GET(0).ToList();
                 
             }
             catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
@@ -34,12 +33,13 @@ namespace PMMS.Areas.Admin.Controllers
            
             try
             {
-                CommonViewModel.Obj = new Client();
-
+                CommonViewModel.Obj = new Service();
+                CommonViewModel.Obj.ServiceChecklist = new List<ServiceChecklist>();
 
                 if (Id> 0)
                 {
-                    CommonViewModel.Obj = ClientServices.GET(Id).FirstOrDefault();
+                    CommonViewModel.Obj = ServiceServices.GET(Id).FirstOrDefault();
+                    CommonViewModel.Obj.ServiceChecklist = ServiceServices.GET_ServiceChecklist(Id).ToList();
                 }               
                
             }
@@ -50,54 +50,83 @@ namespace PMMS.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public JsonResult Save(Client viewModel)
+        public JsonResult Save(Service viewModel)
         {
 
             try
             {
                
 
-                if (string.IsNullOrEmpty(viewModel.Name))
+                if (string.IsNullOrEmpty(viewModel.ServiceName))
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please Enter Client Name.";
+                    CommonViewModel.Message = "Please Enter Service Name.";
 
                     return Json(CommonViewModel);
                 }
-                if (string.IsNullOrEmpty(viewModel.Phone))
+                if (string.IsNullOrEmpty(viewModel.Slug))
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please Enter Phone No.";
+                    CommonViewModel.Message = "Please Enter Slug.";
 
                     return Json(CommonViewModel);
                 }
-                if (!string.IsNullOrEmpty(viewModel.Phone) &&
-                        !ValidateField.IsValidMobileNo_D10(viewModel.Phone))
+                if (string.IsNullOrEmpty(viewModel.ShortDescription))
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please Enter Valid 10 Digit Phone Number.";
-                    return Json(CommonViewModel);
-                }
-                if (string.IsNullOrEmpty(viewModel.Email))
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please Enter Email.";
+                    CommonViewModel.Message = "Please Enter Short Description.";
 
                     return Json(CommonViewModel);
                 }
-                if (!string.IsNullOrEmpty(viewModel.Email) &&
-                       !ValidateField.IsValidEmail(viewModel.Email))
+                if (string.IsNullOrEmpty(viewModel.Title))
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please Enter Valid Email.";
+                    CommonViewModel.Message = "Please Enter Title.";
+
+                    return Json(CommonViewModel);
+                }                
+                if (string.IsNullOrEmpty(viewModel.BestFor))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Best For.";
+
                     return Json(CommonViewModel);
                 }
-               var (IsSuccess, response, Id) = ClientServices.Save(viewModel);
+                if (string.IsNullOrEmpty(viewModel.Technologies))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Technologies.";
+
+                    return Json(CommonViewModel);
+                }
+                if (string.IsNullOrEmpty(viewModel.Description))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Description.";
+
+                    return Json(CommonViewModel);
+                }
+                if (viewModel.ServiceChecklist != null && viewModel.ServiceChecklist.Count > 0)
+                {
+                    for (int i = 0; i < viewModel.ServiceChecklist.Count; i++)
+                    {
+                        if (string.IsNullOrEmpty(viewModel.ServiceChecklist[i].ItemName))
+                        {
+                            CommonViewModel.IsSuccess = false;
+                            CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                            CommonViewModel.Message = "Please Enter Item Name at Line No " + (i + 1);
+                            return Json(CommonViewModel);
+                        }                      
+                    }
+                }
+                var (IsSuccess, response, Id) = ServiceServices.Save(viewModel);
 
                 CommonViewModel.IsConfirm = IsSuccess;
                 CommonViewModel.IsSuccess = IsSuccess;
@@ -122,14 +151,14 @@ namespace PMMS.Areas.Admin.Controllers
         {
             
 
-            var (IsSuccess, response) = ClientServices.Delete(Id);
+            var (IsSuccess, response) = ServiceServices.Delete(Id);
             
            
             CommonViewModel.IsConfirm = IsSuccess;
             CommonViewModel.IsSuccess = IsSuccess;
             CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
             CommonViewModel.Message = response;
-            CommonViewModel.RedirectURL = Url.Action("Index", "Client", new { area = "Admin" });
+            CommonViewModel.RedirectURL = Url.Action("Index", "Service", new { area = "Admin" });
 
 
             return Json(CommonViewModel);

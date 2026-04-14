@@ -1,0 +1,151 @@
+﻿
+@model ResponseModel<Service>
+
+@{
+    Layout = null;
+}
+
+<div class="col-md-12" style="margin-bottom: -21px;">
+    <div class="card card-info">
+
+        <div class="card-header">
+            <h3 class="card-title">@(Model.Obj != null && Model.Obj.Id > 0 ? "Edit" : "Create") Service</h3>
+            <input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+        </div>
+        <div class="card-body form-horizontal">
+           <div class="form-group row mt-1">
+              <label class="col-sm-2 col-form-label text-left">Service Name<span style="color:red">*</span></label>
+              <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="ServiceName" name="ServiceName" value="@Model.Obj?.ServiceName" placeholder="Service Name" autocomplete="off" />
+              </div>
+                <label class="col-sm-2 col-form-label text-left">Slug<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="Slug" name="Slug" value="@Model.Obj?.Slug" placeholder="Slug" autocomplete="off" maxlength="150" />
+                </div>
+                        
+           </div>
+            <div class="form-group row mt-1">
+                <label class="col-sm-2 col-form-label text-left">Display Order</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm isNumberKey" id="DisplayOrder" name="DisplayOrder" value="@Model.Obj?.DisplayOrder" placeholder="Display Order" autocomplete="off" />
+                </div>
+                <label class="col-sm-2 col-form-label text-left">Short Description<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="ShortDescription" name="ShortDescription" value="@Model.Obj?.ShortDescription" placeholder="Short Description" autocomplete="off" />
+                </div>
+            </div>
+            <div class="form-group row mt-1">
+                <label class="col-sm-2 col-form-label text-left">Title<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" id="Title" name="Title" value="@Model.Obj?.Title" placeholder="Title" autocomplete="off" />
+                </div>
+                <label class="col-sm-2 col-form-label text-left">Best For<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="BestFor" name="BestFor" value="@Model.Obj?.BestFor" placeholder="Best For" autocomplete="off" />
+                </div>
+            </div>
+            <div class="form-group row mt-1">
+                <label class="col-sm-2 col-form-label text-left">Technologies<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" id="Technologies" name="Technologies" value="@Model.Obj?.Technologies" placeholder="Technologies" autocomplete="off" />
+                </div>
+                <label class="col-sm-2 col-form-label text-left">Description<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+                    <textarea type="text" class="form-control form-control-sm" rows="3" id="Description" name="Description" value="@Model.Obj?.Description" placeholder="Description" autocomplete="off">@Model.Obj?.Description</textarea>
+                </div>
+            </div>
+			<div class="form-group row mt-1">
+				<div class="card mt-3">
+					<div class="card-header d-flex align-items-center justify-content-between">
+						<h5 class="mb-0">
+							<i class="ri-group-line me-1"></i> Service Check List
+						</h5>
+
+						<button type="button"
+								class="btn btn-sm btn-primary"
+								id="btnAddFamily" onclick="fnBtnAddNewItem()">
+							<i class="ri-add-line"></i> Add New
+						</button>
+					</div>
+					<div class="card-body pt-2">
+						<div class="responsive-table-plugin">
+							<div class="table-rep-plugin">
+								<div class="table-responsive" data-pattern="priority-columns">
+									<table class="table table-bordered table-sm align-middle w-100" id="ServiceChecklist_Table">
+										<thead>
+											<tr>
+												<th>Item Name<span style="color:red">*</span></th>
+												<th>Display Order</th>												
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											@{
+												int trid = 0;
+											}
+											@if (Model.Obj.ServiceChecklist != null && Model.Obj.ServiceChecklist.Count > 0)
+											{
+												trid = Model.Obj.ServiceChecklist.Count;
+												for (int i = 0; i < Model.Obj.ServiceChecklist.Count; i++)
+												{
+													<tr id="tr_@i">
+														<td>
+															<input type="hidden" id="ServiceChecklist_@(i)_Id" name="ServiceChecklist[@i].Id" class="form-control ServiceChecklist_Id" value="@Model.Obj.ServiceChecklist[i].Id" />
+															<input type="hidden" id="ServiceChecklist_@(i)_ServiceId" name="ServiceChecklist[@i].ServiceId" class="form-control" value="@Model.Obj.ServiceChecklist[i].ServiceId" />
+															<input type="text" id="ServiceChecklist_@(i)_ItemName" name="ServiceChecklist[@i].ItemName" class="form-control" value="@Model.Obj.ServiceChecklist[i].ItemName" />
+														</td>
+														<td><input type="text" id="ServiceChecklist_@(i)_DisplayOrder" name="ServiceChecklist[@i].DisplayOrder" class="form-control isNumberKey" value="@Model.Obj.ServiceChecklist[i].DisplayOrder" /></td>
+														<td>
+															<div class="btn-group">
+																<button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(this)">
+																	<i class="ri-delete-bin-2-line"></i>
+																</button>
+															</div>
+														</td>
+													</tr>
+												}
+											}
+											else
+											{
+												<tr id="tr_@trid">
+
+													<td>
+														<input type="hidden" id="ServiceChecklist_@(trid)_Id" name="ServiceChecklist[@(trid)].Id" class="form-control ServiceChecklist_Id" value="" />
+														<input type="hidden" id="ServiceChecklist_@(trid)_ServiceId" name="ServiceChecklist[@(trid)].ServiceId" class="form-control" />
+														<input type="text" id="ServiceChecklist_@(trid)_ItemName" name="ServiceChecklist[@trid].ItemName" class="form-control" value="" />
+													</td>
+													<td><input type="text" id="ServiceChecklist_@(trid)_DisplayOrder" name="ServiceChecklist[@trid].DisplayOrder" class="form-control isNumberKey" value="" /></td>
+													<td>
+														<div class="btn-group">
+															<button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete">
+																<i class="ri-delete-bin-2-line"></i>
+															</button>
+														</div>
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div> <!-- end .table-responsive -->
+
+							</div> <!-- end .table-rep-plugin-->
+						</div>
+					</div>
+
+				</div>
+			</div>
+        </div>
+            <div class="card-footer text-center">               
+                        <button type="button" class="btn btn-success btnSubmit">Save</button>
+            <button type="button" class="btn btn-danger" onclick="fnBackToList('@Url.Action("Index", "Service", new { area = "Admin" })');">Cancel</button>
+            </div>
+	</div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+        });
+    </script>
+}
