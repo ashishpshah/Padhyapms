@@ -18,13 +18,8 @@ namespace PMMS.Areas.Admin.Controllers
         public readonly TimeOnly? nullTimeOnly = null;
         public ActionResult Index()
         {
-            var UserId = Common.LoggedUser_Id();
-            if (Common.LoggedUser_Id() <= 0)
-                return RedirectToAction("Account", "Home", new { Area = "Admin" });
+            if (Common.LoggedUser_Id() <= 0) return RedirectToAction("Account", "Home", new { Area = "Admin" });
             
-
-
-
             return View(CommonViewModel);
         }
 

@@ -1835,7 +1835,8 @@ function fnLoadCommonTable($selector) {
         ordering: true,
         info: true,
         autoWidth: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         pageLength: 25,
         lengthMenu: [
             [10, 25, 50, -1],
@@ -1870,7 +1871,7 @@ function fnLoadCommonTable_ScrollX($selector) {
         ordering: true,
         info: true,
         autoWidth: true,
-        responsive: true,
+        responsive: false,
         pageLength: 25,
         lengthMenu: [
             [10, 25, 50, -1],
@@ -1904,7 +1905,8 @@ function fnLoadCommonTable_Checkboxes($selector) {
         ordering: true,
         info: true,
         autoWidth: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         pageLength: 25,
         lengthMenu: [
             [10, 25, 50, -1],
@@ -1950,7 +1952,8 @@ function fnLoadCommonTable_SrNo($selector) {
         ordering: true,
         info: true,
         autoWidth: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         pageLength: 25,
         lengthMenu: [
             [10, 25, 50, -1],
@@ -1995,7 +1998,8 @@ function fnLoadCommonTable_Buttons($selector) {
         ordering: true,
         info: true,
         autoWidth: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         columnDefs: [
             { "targets": 0, "className": "text-center", "width": "3%", "autoWidth": false, "searchable": false, "orderable": false },
             { "targets": -1, "className": "text-center", "width": "3%", "autoWidth": false, "searchable": false, "orderable": false }
