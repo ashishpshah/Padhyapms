@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using PMMS.Areas.Admin.Services;
 using PMMS.Controllers;
 using PMMS.Infra;
+using PMMS.Infra.Services;
 using PMMS.Models;
 using System.Data;
 using System.Net.Mail;
@@ -17,7 +19,8 @@ namespace PMMS.Areas.Admin.Controllers
             CommonViewModel.ObjList = new List<Client>();
             try
             {
-               CommonViewModel.ObjList = new List<Client>();
+               CommonViewModel.ObjList = ClientServices.GET(0).ToList();
+                
             }
             catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
 
@@ -28,35 +31,21 @@ namespace PMMS.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Partial_AddEditForm(int Id)
         {
-            var obj = new Client();
-
-            var dt = new DataTable();
-
-            var list = new List<SelectListItem_Custom>();
-            List<SqlParameter> oParams = new List<SqlParameter>();
+           
             try
             {
+                CommonViewModel.Obj = new Client();
 
 
-
-                oParams.Add(new SqlParameter("@ClientId", SqlDbType.BigInt) { Value = Id == 0 ? null : Id });
-
-                dt = DataContext_Command.ExecuteStoredProcedure_DataTable("SP_ClientMaster_Get", oParams, true);
-
-                if (dt != null && dt.Rows.Count > 0)
+                if (Id> 0)
                 {
-                    obj = new Client()
-                    {
-                        ClientId = dt.Rows[0]["ClientId"] != DBNull.Value ? Convert.ToInt64(dt.Rows[0]["ClientId"]) : 0,
-                        ClientName = dt.Rows[0]["ClientName"] != DBNull.Value ? Convert.ToString(dt.Rows[0]["ClientName"]) : null,
-                        IsActive = dt.Rows[0]["IsActive"] != DBNull.Value ? Convert.ToBoolean(dt.Rows[0]["IsActive"]) : true
-                    };
-                }
+                    CommonViewModel.Obj = ClientServices.GET(Id).FirstOrDefault();
+                }               
                
             }
             catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
 
-            CommonViewModel.Obj = obj;
+           
             return PartialView("_Partial_AddEditForm", CommonViewModel);
         }
 
@@ -68,7 +57,7 @@ namespace PMMS.Areas.Admin.Controllers
             {
                
 
-                if (string.IsNullOrEmpty(viewModel.ClientName))
+                if (string.IsNullOrEmpty(viewModel.Name))
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
@@ -76,15 +65,39 @@ namespace PMMS.Areas.Admin.Controllers
 
                     return Json(CommonViewModel);
                 }
+                if (string.IsNullOrEmpty(viewModel.Phone))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Phone No.";
 
-                List<SqlParameter> oParams = new List<SqlParameter>();
+                    return Json(CommonViewModel);
+                }
+                if (!string.IsNullOrEmpty(viewModel.Phone) &&
+                        !ValidateField.IsValidMobileNo_D10(viewModel.Phone))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Valid 10 Digit Phone Number.";
+                    return Json(CommonViewModel);
+                }
+                if (string.IsNullOrEmpty(viewModel.Email))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Email.";
 
-                oParams.Add(new SqlParameter("@ClientId", SqlDbType.BigInt) { Value = viewModel.ClientId });
-                oParams.Add(new SqlParameter("@ClientName", SqlDbType.VarChar) { Value = viewModel.ClientName });
-                oParams.Add(new SqlParameter("@Operated_By", SqlDbType.BigInt) { Value = AppHttpContextAccessor.GetSession(SessionKey.KEY_USER_ID) });
-                oParams.Add(new SqlParameter("@Action", SqlDbType.VarChar) { Value = viewModel.ClientId == 0 ? "INSERT" : "UPDATE" });
-
-                var (IsSuccess, response, Id) = DataContext_Command.ExecuteStoredProcedure("SP_ClientMaster_Save", oParams, true);
+                    return Json(CommonViewModel);
+                }
+                if (!string.IsNullOrEmpty(viewModel.Email) &&
+                       !ValidateField.IsValidEmail(viewModel.Email))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Valid Email.";
+                    return Json(CommonViewModel);
+                }
+               var (IsSuccess, response, Id) = ClientServices.Save(viewModel);
 
                 CommonViewModel.IsConfirm = IsSuccess;
                 CommonViewModel.IsSuccess = IsSuccess;
@@ -109,29 +122,15 @@ namespace PMMS.Areas.Admin.Controllers
         {
             var parameters = new List<SqlParameter>();
 
-            parameters.Add(new SqlParameter("@ClientId", SqlDbType.Int) { Value = Id, Direction = ParameterDirection.Input });
-            parameters.Add(new SqlParameter("@Operated_By", SqlDbType.Int) { Value = AppHttpContextAccessor.GetSession(SessionKey.KEY_USER_ID), Direction = ParameterDirection.Input });
+            var (IsSuccess, response) = ClientServices.Delete(Id);
+            
+           
+            CommonViewModel.IsConfirm = IsSuccess;
+            CommonViewModel.IsSuccess = IsSuccess;
+            CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+            CommonViewModel.Message = response;
+            CommonViewModel.RedirectURL = Url.Action("Index", "Client", new { area = "Admin" });
 
-            var response = DataContext_Command.ExecuteStoredProcedure("SP_ClientMaster_Delete", parameters.ToArray());
-
-            var msgtype = response.Split('|').Length > 0 ? response.Split('|')[0] : "";
-            var message = response.Split('|').Length > 1 ? response.Split('|')[1].Replace("\"", "") : "";
-            var strid = response.Split('|').Length > 2 ? response.Split('|')[2].Replace("\"", "") ?? "0" : "0";
-
-            if (msgtype.Contains("S"))
-            {
-                //Common.Set_Session(SessionKey.Truck_NAME, Convert.ToString(strid));
-                CommonViewModel.IsConfirm = true;
-                CommonViewModel.IsSuccess = true;
-                CommonViewModel.StatusCode = ResponseStatusCode.Success;
-                CommonViewModel.Message = message;
-                CommonViewModel.RedirectURL = Url.Action("Index", "Client");
-                return Json(CommonViewModel);
-            }
-            CommonViewModel.IsConfirm = true;
-            CommonViewModel.IsSuccess = false;
-            CommonViewModel.Status = ResponseStatusMessage.Error;
-            CommonViewModel.Message = message;
 
             return Json(CommonViewModel);
         }

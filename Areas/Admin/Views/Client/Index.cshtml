@@ -42,6 +42,8 @@
                                             <tr>
                                                  <th>Sr.No.</th>
                                                 <th>Client Name</th>
+                                                <th>Phone No</th>
+                                                <th>Email</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -53,21 +55,23 @@
                                                 {
                                                     <tr>
                                                         <td></td>
-                                                        <td>@item.ClientName</td>
+                                                        <td>@item.Name</td>
+                                                        <td>@item.Phone</td>
+                                                        <td>@item.Email</td>
 
                                                         <td>
                                                             <div class="btn-group">
                                                                 @* @if (Common.IsAdmin() && item.Id != Common.LoggedUser_Id() && Model.IsUpdate == true)
                                                                 { *@
                                                                     <button type="button" class="btn btn-info btn-sm btn-flat" data-toggle="tooltip" data-placement="top" title="Edit"
-                                                                            onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm","Client", new {  area = "Admin" })?Id=@item.ClientId');">
+                                                                        onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm", "Client", new { area = "Admin" })?Id=@item.Id');">
                                                                         <i class="ri-pencil-fill"></i>
                                                                     </button>
                                                                 @* } *@
                                                                 @* @if (Common.IsAdmin() && item.Id != Common.LoggedUser_Id() && Model.IsDelete == true && item.IsDeleted == false)
                                                                 { *@
                                                                     <button type="button" class="btn btn-danger btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete"
-                                                                            onclick="fnDelete_Confirm('@Url.Action("DeleteConfirmed","Client", new {  area = "Admin" })?Id=@item.ClientId');">
+                                                                            onclick="fnDelete_Confirm('@Url.Action("DeleteConfirmed","Client", new {  area = "Admin" })?Id=@item.Id');">
                                                                         <i class="ri-delete-bin-2-line"></i>
                                                                     </button>
                                                                 @* } *@

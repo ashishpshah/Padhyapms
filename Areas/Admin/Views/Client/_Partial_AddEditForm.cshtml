@@ -1,4 +1,4 @@
-﻿@using PMMS.Areas.Admin.Models
+﻿
 @model ResponseModel<Client>
 
 @{
@@ -9,38 +9,41 @@
     <div class="card card-info">
 
         <div class="card-header">
-            <h3 class="card-title">@(Model.Obj != null && Model.Obj.ClientId > 0 ? "Edit" : "Create") Client</h3>
-            <input type="text" class="form-control d-none" id="ClientId" name="ClientId" value="@(Model.Obj != null && Model.Obj.ClientId > 0 ? Model.Obj.ClientId.ToString() : "")">
+            <h3 class="card-title">@(Model.Obj != null && Model.Obj.Id > 0 ? "Edit" : "Create") Client</h3>
+            <input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
         </div>
-        <div class="card-body">
-            <div class="row no-gutters">
-                <div class="col-12">
-
-                    
-                        @* <div class="row mb-3"> *@
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label text-left">Client Name<span style="color:red">*</span></label>
-                            <div class="col-4">
-                            <input type="text"
-                                   class="form-control form-control-sm"
-                                   id="ClientName"
-                                   name="ClientName"
-                                   value="@Model.Obj?.ClientName"
-                                   placeholder="Client Name"
-                                   autocomplete="off" />
-                            </div>
+        <div class="card-body form-horizontal">
+           <div class="form-group row mt-1">
+              <label class="col-sm-2 col-form-label text-left">Client Name<span style="color:red">*</span></label>
+              <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="ClientName" name="Name" value="@Model.Obj?.Name" placeholder="Client Name" autocomplete="off" />
+              </div>
+                <label class="col-sm-2 col-form-label text-left">Phone No<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm isNumberKey" id="Phone" name="Phone" value="@Model.Obj?.Phone" placeholder="Phone No" autocomplete="off" maxlength="10" />
+                </div>
                         
+           </div>
+            <div class="form-group row mt-1">
+                <label class="col-sm-2 col-form-label text-left">Email<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="Email" name="Email" value="@Model.Obj?.Email" placeholder="Email" autocomplete="off" />
+                </div>
+                <label class="col-sm-2 col-form-label text-left">Company Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="CompanyName" name="CompanyName" value="@Model.Obj?.CompanyName" placeholder="Company Name" autocomplete="off" />
+                </div>
+            </div>
+            <div class="form-group row mt-1">               
+                <label class="col-sm-2 col-form-label text-left">Website</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control form-control-sm" id="Website" name="Website" value="@Model.Obj?.Website" placeholder="Website" autocomplete="off" />
                 </div>
             </div>
         </div>
-            <div class="card-footer">
-                <div class="justify-content-end row">
-                    <div class="col-10">
-                        <button type="button" class="btn btn-success btnSubmit px-5">Save</button>
-                        <button type="button" class="btn btn-outline-danger px-3" onclick="fnBackToList();">Cancel</button>
-                    </div>
-                </div>
-
+            <div class="card-footer text-center">               
+                        <button type="button" class="btn btn-success btnSubmit">Save</button>
+            <button type="button" class="btn btn-danger" onclick="fnBackToList('@Url.Action("Index", "Client", new { area = "Admin" })');">Cancel</button>
             </div>
 	</div>
 </div>

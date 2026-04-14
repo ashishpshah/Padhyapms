@@ -7,17 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Areas\Admin\Views\Client\**" />
-    <Content Remove="Areas\Admin\Views\Client\**" />
-    <EmbeddedResource Remove="Areas\Admin\Views\Client\**" />
-    <None Remove="Areas\Admin\Views\Client\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Areas\Admin\Controllers\ClientController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="EPPlus" Version="8.5.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
