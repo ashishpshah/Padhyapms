@@ -33,6 +33,7 @@ namespace PMMS.Areas.Admin.Services
                             Phone = dr["Phone"] != DBNull.Value ? Convert.ToString(dr["Phone"]) : "",
                             CompanyName = dr["CompanyName"] != DBNull.Value ? Convert.ToString(dr["CompanyName"]) : "",
                             Website = dr["Website"] != DBNull.Value ? Convert.ToString(dr["Website"]) : "",
+                            Country = dr["Country"] != DBNull.Value ? Convert.ToString(dr["Country"]) : "",
                          });
             }
             catch (Exception ex)
@@ -63,6 +64,7 @@ namespace PMMS.Areas.Admin.Services
                     parameters.Add(new SqlParameter("Phone", SqlDbType.NVarChar) { Value = obj.Phone ?? "", Direction = ParameterDirection.Input, IsNullable = true });
                     parameters.Add(new SqlParameter("CompanyName", SqlDbType.NVarChar) { Value = obj.CompanyName ?? "", Direction = ParameterDirection.Input, IsNullable = true });
                     parameters.Add(new SqlParameter("Website", SqlDbType.NVarChar) { Value = obj.Website ?? "", Direction = ParameterDirection.Input, IsNullable = true });
+                    parameters.Add(new SqlParameter("Country", SqlDbType.NVarChar) { Value = obj.Country ?? "", Direction = ParameterDirection.Input, IsNullable = true });
                     parameters.Add(new SqlParameter("Operated_By", SqlDbType.BigInt)
                     {
                         Value = Common.Get_Session_Int(SessionKey.KEY_USER_ID),
