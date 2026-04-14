@@ -7,18 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Areas\Admin\Views\Client\**" />
     <Compile Remove="Models_Temp\**" />
-    <Content Remove="Areas\Admin\Views\Client\**" />
     <Content Remove="Models_Temp\**" />
-    <EmbeddedResource Remove="Areas\Admin\Views\Client\**" />
     <EmbeddedResource Remove="Models_Temp\**" />
-    <None Remove="Areas\Admin\Views\Client\**" />
     <None Remove="Models_Temp\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Areas\Admin\Controllers\ClientController.cs" />
   </ItemGroup>
 
   <ItemGroup>
