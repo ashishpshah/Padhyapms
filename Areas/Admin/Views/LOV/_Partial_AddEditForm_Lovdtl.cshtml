@@ -1,0 +1,61 @@
+﻿@model ResponseModel<LOV>
+
+@{
+	Layout = null;
+}
+
+<div class="col-md-12" style="margin-bottom: -21px;">
+	<div class="card card-info">
+
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj != null && Model.Obj.LOV_Code != ""  ? "Edit" : "Create") Lov Detail</h3>
+			<input type="text" class="form-control d-none" id="Action" name="Action" value="@(Model.Obj != null && Model.Obj.LOV_Code != "" ? "UPDATE" : "INSERT")">
+			<input type="text" class="form-control d-none" id="LOV_Column" name="LOV_Column" value="@(Model.Obj != null && Model.Obj.LOV_Column != "" || Model.Obj.LOV_Column != null ? Model.Obj.LOV_Column.ToString() : "")">
+			<input type="text" class="form-control d-none" id="Display_Text" name="Display_Text" value="@(Model.Obj != null && Model.Obj.Display_Text != "" || Model.Obj.Display_Text != null ? Model.Obj.Display_Text.ToString() : "")">
+			<input type="text" class="form-control d-none" id="LOV_Code" name="LOV_Code" value="@(Model.Obj != null && Model.Obj.LOV_Code != "" || Model.Obj.LOV_Code != null ? Model.Obj.LOV_Code.ToString() : "")">
+			
+		</div>
+
+		<div class="card-body form-horizontal">
+
+			<div class="row no-gutters">
+				<div class="col-12">
+					<div class="form-group row" style=" padding-top: 20px;">
+						<label for="Name" class="col-2 col-form-label text-end">Description<span style="color:red">*</span></label>
+						<div class="col-sm-4">
+							<input type="text" class="form-control " id="LOV_Desc" name="LOV_Desc" value="@Model.Obj.LOV_Desc"
+								   placeholder="Description" autocomplete="off">
+						</div>
+						<label for="Name" class="col-2 col-form-label text-end">Display Order</label>
+						<div class="col-sm-4">
+							<input type="text" class="form-control " id="DisplayOrder" name="DisplayOrder" value="@Model.Obj.DisplayOrder"
+								   placeholder="Display Order isNumberKey" autocomplete="off" maxlength="45">
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+		</div>
+
+	</div>
+
+	<div class="card-footer text-center">
+
+		<button type="submit" class="btn btn-success btnSubmit">Save</button>
+		<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common');">Cancel</button>
+
+
+	</div>
+</div>
+
+
+@section Scripts {
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+		});
+
+
+	</script>
+}

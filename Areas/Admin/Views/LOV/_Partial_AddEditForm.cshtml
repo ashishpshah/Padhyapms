@@ -1,0 +1,56 @@
+﻿@model ResponseModel<LOV>
+
+@{
+	Layout = null;
+}
+
+<div class="col-md-12" style="margin-bottom: -21px;">
+	<div class="card card-info">
+
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj != null && Model.Obj.LOV_Column != "" ? "Edit" : "Create") Lov</h3>
+			<input type="text" class="form-control d-none" id="Action" name="Action" value="@(Model.Obj != null && Model.Obj.LOV_Column != ""? "UPDATE" : "INSERT")">
+		</div>
+
+		<div class="card-body form-horizontal">
+			
+				<div class="row no-gutters">
+					<div class="col-12">
+						<div class="form-group row" style=" padding-top: 20px;">
+							<label for="Name" class="col-2 col-form-label text-end">Column Name<span style="color:red">*</span></label>
+							<div class="col-sm-4">
+							<input type="text" class="form-control " id="LOV_Column" name="LOV_Column" value="@Model.Obj.LOV_Column"
+								   placeholder="Column Name" autocomplete="off" readonly="@(Model.Obj.LOV_Column != "" ? true : false)">
+							</div>
+							<label for="Name" class="col-2 col-form-label text-end">Display Text<span style="color:red">*</span></label>
+							<div class="col-sm-4">
+							<input type="text" class="form-control " id="Display_Text" name="Display_Text" value="@Model.Obj.Display_Text"
+								   placeholder="Display Text" autocomplete="off">
+							</div>
+						</div>			
+					</div>
+				</div>			
+				
+
+			</div>
+
+		</div>
+
+	<div class="card-footer text-center">
+			
+					<button type="submit" class="btn btn-success btnSubmit">Save</button>
+					<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common');">Cancel</button>
+				
+		
+	</div>
+</div>
+
+@section Scripts {
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+		});
+
+
+	</script>
+}
