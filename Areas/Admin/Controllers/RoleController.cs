@@ -6,7 +6,7 @@ using System.Linq;
 namespace PMMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class RoleController : BaseController<ResponseModel<Role>>
+    public class RoleController : BaseController<ResponseModel<UserRole>>
     {
         public RoleController(IRepositoryWrapper repository) : base(repository) { }
 
@@ -14,14 +14,32 @@ namespace PMMS.Areas.Admin.Controllers
         public ActionResult Index()
         {
             if (Common.IsSuperAdmin())
-                CommonViewModel.ObjList = (from x in _context.Using<Role>().GetAll().ToList()
-                                           where x.Id > 0
-                                           select new Role { Id = x.Id, Name = x.Name, IsActive = x.IsActive, IsAdmin = x.IsAdmin }).Distinct().ToList();
+                CommonViewModel.ObjList = (from x in _context.Using<UserRole>().GetAll().ToList()
+                                           where x.Id > 1
+                                           select new UserRole { Id = x.Id, Name = x.Name, IsActive = x.IsActive, IsAdmin = x.IsAdmin }).Distinct().ToList();
 
             else if (!Common.IsSuperAdmin() && Common.IsAdmin())
-                CommonViewModel.ObjList = (from x in _context.Using<Role>().GetAll().ToList()
-                                           where x.Id > 0
-                                           select new Role { Id = x.Id, Name = x.Name, IsActive = x.IsActive, IsAdmin = x.IsAdmin }).Distinct().ToList();
+                CommonViewModel.ObjList = (from x in _context.Using<UserRole>().GetAll().ToList()
+                                           where x.Id > 1
+                                           select new UserRole { Id = x.Id, Name = x.Name, IsActive = x.IsActive, IsAdmin = x.IsAdmin }).Distinct().ToList();
+
+            var listMenu = _context.Using<Menu>().GetAll().ToList();
+
+            for (int i = 0; i < CommonViewModel.ObjList.Count(); i++)
+            {
+                var list = _context.Using<UserRoleMenuAccess>().GetByCondition(x => x.RoleId == CommonViewModel.ObjList[i].Id && x.UserId == 0).ToList();
+
+                if (list != null && list.Count() > 0)
+                {
+                    string[] selected = (from x in list
+                                         join y in listMenu on x.MenuId equals y.Id
+                                         where !y.Name.ToLower().Contains("menu") && !y.Name.ToLower().Contains("menu")
+                                         select Convert.ToString(y.Name)).ToArray();
+
+                    if (selected != null && selected.Length > 0)
+                        CommonViewModel.ObjList[i].CreatedDate_Text = string.Join(", ", selected);
+                }
+            }
 
             return View(CommonViewModel);
         }
@@ -29,10 +47,10 @@ namespace PMMS.Areas.Admin.Controllers
         //[CustomAuthorizeAttribute(AccessType_Enum.Read)]
         public ActionResult Partial_AddEditForm(long Id = 0)
         {
-            CommonViewModel.Obj = new Role();
+            CommonViewModel.Obj = new UserRole();
 
-            if (Common.IsAdmin() && Id > 0)
-                CommonViewModel.Obj = _context.Using<Role>().GetByCondition(x => x.Id > 0 && x.Id == Id).FirstOrDefault();
+            if (Common.IsAdmin() && Id > 1)
+                CommonViewModel.Obj = _context.Using<UserRole>().GetByCondition(x => x.Id > 1 && x.Id == Id).FirstOrDefault();
 
 
             var listMenu = _context.Using<Menu>().GetAll().ToList();
@@ -62,7 +80,7 @@ namespace PMMS.Areas.Admin.Controllers
 
             if (menus != null && menus.Count > 0) CommonViewModel.SelectListItems.AddRange(menus);
 
-            var list = _context.Using<RoleMenuAccess>().GetByCondition(x => x.RoleId == CommonViewModel.Obj.Id).ToList();
+            var list = _context.Using<UserRoleMenuAccess>().GetByCondition(x => x.RoleId == CommonViewModel.Obj.Id && x.UserId == 0).ToList();
 
             if (list != null && list.Count() > 0)
             {
@@ -82,7 +100,7 @@ namespace PMMS.Areas.Admin.Controllers
 
         [HttpPost]
         //[CustomAuthorizeAttribute(AccessType_Enum.Write)]
-        public ActionResult Save(Role viewModel)
+        public ActionResult Save(UserRole viewModel)
         {
             try
             {
@@ -110,7 +128,7 @@ namespace PMMS.Areas.Admin.Controllers
                         return Json(CommonViewModel);
                     }
 
-                    if (_context.Using<Role>().Any(x => x.Name.ToLower().Replace(" ", "") == viewModel.Name.ToLower().Replace(" ", "") && x.Id != viewModel.Id && x.Id > 0))
+                    if (_context.Using<UserRole>().Any(x => x.Name.ToLower().Replace(" ", "") == viewModel.Name.ToLower().Replace(" ", "") && x.Id != viewModel.Id && x.Id > 1))
                     {
                         CommonViewModel.IsSuccess = false;
                         CommonViewModel.StatusCode = ResponseStatusCode.Error;
@@ -127,10 +145,10 @@ namespace PMMS.Areas.Admin.Controllers
                     {
                         try
                         {
-                            Role obj = _context.Using<Role>().GetByCondition(x => x.Id > 0 && x.Id == viewModel.Id).FirstOrDefault();
+                            UserRole obj = _context.Using<UserRole>().GetByCondition(x => x.Id > 1 && x.Id == viewModel.Id).FirstOrDefault();
 
                             if (viewModel != null && !(viewModel.DisplayOrder > 0))
-                                viewModel.DisplayOrder = (_context.Using<Role>().GetAll().ToList().Max(x => x.DisplayOrder) ?? 0) + 1;
+                                viewModel.DisplayOrder = (_context.Using<UserRole>().GetAll().ToList().Max(x => x.DisplayOrder) ?? 0) + 1;
 
                             if (Common.IsAdmin() && obj != null)
                             {
@@ -139,7 +157,7 @@ namespace PMMS.Areas.Admin.Controllers
                                 obj.IsAdmin = Common.IsSuperAdmin() ? viewModel.IsAdmin : false;
                                 obj.IsActive = viewModel.IsActive;
 
-                                _context.Using<Role>().Update(obj);
+                                _context.Using<UserRole>().Update(obj);
                                 //_context.Entry(obj).State = EntityState.Modified;
                                 //_context.SaveChanges();
                             }
@@ -147,7 +165,7 @@ namespace PMMS.Areas.Admin.Controllers
                             {
                                 viewModel.IsAdmin = Common.IsSuperAdmin() ? viewModel.IsAdmin : false;
 
-                                var _viewModel = _context.Using<Role>().Add(viewModel);
+                                var _viewModel = _context.Using<UserRole>().Add(viewModel);
                                 viewModel.Id = _viewModel.Id;
                                 //_context.SaveChanges();
                                 //_context.Entry(viewModel).Reload();
@@ -155,13 +173,13 @@ namespace PMMS.Areas.Admin.Controllers
 
                             try
                             {
-                                var listRoleMenuAccesses = _context.Using<RoleMenuAccess>().GetByCondition(x => x.RoleId == viewModel.Id).ToList();
+                                var listRoleMenuAccesses = _context.Using<UserRoleMenuAccess>().GetByCondition(x => x.RoleId == viewModel.Id && x.UserId == 0).ToList();
 
                                 if (listRoleMenuAccesses != null && listRoleMenuAccesses.Count() > 0)
                                 {
                                     foreach (var access in listRoleMenuAccesses)
                                     {
-                                        _context.Using<RoleMenuAccess>().Delete(access);
+                                        _context.Using<UserRoleMenuAccess>().Delete(access);
                                         //_context.Entry(access).State = EntityState.Deleted;
                                         //_context.SaveChanges();
                                     }
@@ -174,22 +192,17 @@ namespace PMMS.Areas.Admin.Controllers
                                     List<(long MenuId, long ParentMenuId)> menuPairs = viewModel.CreatedDate_Text.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(pair => pair.Split('_'))
                                                     .Select(parts => (MenuId: long.Parse(parts[0]), ParentMenuId: long.Parse(parts[1]))).ToList();
 
-                                    // Get all unique IDs from MenuId and ParentMenuId
                                     var allMenuIds = menuPairs.SelectMany(p => new[] { p.MenuId, p.ParentMenuId }).Distinct().ToList();
 
-                                    // Now get actual Menu objects by matching IDs
                                     var selectedMenus = listMenu.Where(x => x.IsActive == true && allMenuIds.Contains(x.Id)).ToList();
 
-                                    //var list = viewModel.CreatedDate_Text.Split(',');
-
-                                    //foreach (var item in list.Where(x => !string.IsNullOrEmpty(x)))
                                     foreach (var menu in selectedMenus)
                                     {
                                         try
                                         {
-                                            var roleMenuAccess = new RoleMenuAccess()
+                                            var roleMenuAccess = new UserRoleMenuAccess()
                                             {
-                                                //MenuId = Convert.ToInt64(item.Split('_')[0]),
+                                                UserId = 0,
                                                 MenuId = menu.Id,
                                                 RoleId = viewModel.Id,
                                                 IsCreate = true,
@@ -201,8 +214,7 @@ namespace PMMS.Areas.Admin.Controllers
                                                 IsSetDefault = true
                                             };
 
-                                            _context.Using<RoleMenuAccess>().Add(roleMenuAccess);
-                                            //_context.SaveChanges();
+                                            _context.Using<UserRoleMenuAccess>().Add(roleMenuAccess);
                                         }
                                         catch (Exception ex) { continue; }
                                     }
@@ -210,21 +222,20 @@ namespace PMMS.Areas.Admin.Controllers
 
                                     try
                                     {
-                                        var listUserMenuAccesses = _context.Using<UserMenuAccess>().GetByCondition(x => x.RoleId == viewModel.Id).ToList();
+                                        var listUserMenuAccesses = _context.Using<UserRoleMenuAccess>().GetByCondition(x => x.RoleId == viewModel.Id && x.UserId > 0).ToList();
 
-                                        foreach (var access in listUserMenuAccesses) _context.Using<UserMenuAccess>().Delete(access);
-                                        //_context.Entry(access).State = EntityState.Deleted;
-                                        //_context.SaveChanges();
+                                        var filteredAccesses = listUserMenuAccesses.Where(access => !selectedMenus.Any(menu => menu.Id == access.MenuId)).ToList();
+                                        foreach (var access in filteredAccesses) _context.Using<UserRoleMenuAccess>().Delete(access);
 
-                                        foreach (var menu in selectedMenus.OrderBy(x => x.Id).ToList())
-                                        {
-                                            var listRoleUserAccess = (from x in _context.Using<UserRoleMapping>().GetAll().ToList()
-                                                                      where x.RoleId == viewModel.Id && x.UserId > 0 && x.IsActive == true && x.IsDeleted == false
-                                                                      select new UserMenuAccess() { UserId = x.UserId, RoleId = viewModel.Id, MenuId = menu.Id, IsCreate = true, IsUpdate = true, IsRead = true, IsDelete = true, CreatedBy = 1 }).ToList();
+                                        //foreach (var menu in selectedMenus.OrderBy(x => x.Id).ToList())
+                                        //{
+                                        //    var listRoleUserAccess = (from x in _context.Using<UserRoleMapping>().GetAll().ToList()
+                                        //                              where x.RoleId == viewModel.Id && x.UserId > 0 && x.IsActive == true && x.IsDeleted == false
+                                        //                              select new UserRoleMenuAccess() { UserId = x.UserId, RoleId = viewModel.Id, MenuId = menu.Id, IsCreate = true, IsUpdate = true, IsRead = true, IsDelete = true, CreatedBy = 1 }).ToList();
 
-                                            foreach (var item_ in listRoleUserAccess) _context.Using<UserMenuAccess>().Add(item_);
-                                            //_context.SaveChanges();
-                                        }
+                                        //    foreach (var item_ in listRoleUserAccess) _context.Using<UserRoleMenuAccess>().Add(item_);
+                                        //    //_context.SaveChanges();
+                                        //}
                                     }
                                     catch (Exception ex) { }
 
@@ -237,6 +248,7 @@ namespace PMMS.Areas.Admin.Controllers
                             CommonViewModel.IsSuccess = true;
                             CommonViewModel.StatusCode = ResponseStatusCode.Success;
                             CommonViewModel.Message = ResponseStatusMessage.Success;
+
                             CommonViewModel.RedirectURL = Url.Action("Index", "Role", new { area = "Admin" });
 
                             transaction.Commit();
@@ -280,12 +292,12 @@ namespace PMMS.Areas.Admin.Controllers
                     return Json(CommonViewModel);
                 }
 
-                if (Common.IsSuperAdmin() && Common.IsAdmin() && !_context.Using<UserRoleMapping>().Any(x => x.Id > 0 && x.RoleId == Id)
-                    && _context.Using<Role>().Any(x => x.Id > 0 && x.Id == Id))
+                if (Common.IsSuperAdmin() && Common.IsAdmin() && !_context.Using<UserRoleMapping>().Any(x => x.Id > 1 && x.RoleId == Id)
+                    && _context.Using<UserRole>().Any(x => x.Id > 1 && x.Id == Id))
                 {
-                    var obj = _context.Using<Role>().GetByCondition(x => x.Id == Id).FirstOrDefault();
+                    var obj = _context.Using<UserRole>().GetByCondition(x => x.Id == Id).FirstOrDefault();
 
-                    _context.Using<Role>().Update(obj);
+                    _context.Using<UserRole>().Update(obj);
                     //_context.Entry(obj).State = EntityState.Deleted;
                     //_context.SaveChanges();
 

@@ -3,12 +3,7 @@
 	// List<UserMenuAccess> listRoleMenuAccess = Common.GetUserMenuAccesses();
 	List<UserMenuAccess> listRoleMenuAccess = new List<UserMenuAccess>();
 	var menuJson = Common.Get_Session(SessionKey.KEY_USER_MENUACCESS);
-
-	if (!string.IsNullOrEmpty(menuJson))
-	{
-		listRoleMenuAccess =
-			JsonConvert.DeserializeObject<List<UserMenuAccess>>(menuJson);
-	}
+	if (!string.IsNullOrEmpty(menuJson)) listRoleMenuAccess = JsonConvert.DeserializeObject<List<UserMenuAccess>>(menuJson);
 }
 
 <!DOCTYPE html>

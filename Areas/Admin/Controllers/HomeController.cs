@@ -19,7 +19,7 @@ namespace PMMS.Areas.Admin.Controllers
         public ActionResult Index()
         {
             if (Common.LoggedUser_Id() <= 0) return RedirectToAction("Account", "Home", new { Area = "Admin" });
-            
+
             return View(CommonViewModel);
         }
 
@@ -49,10 +49,10 @@ namespace PMMS.Areas.Admin.Controllers
 
                         obj.RoleId = userRole != null ? userRole.RoleId : 0;
 
-                        List<UserMenuAccess> listMenuAccess = new List<UserMenuAccess>();
-                        List<UserMenuAccess> listMenuPermission = new List<UserMenuAccess>();
+                        List<UserRoleMenuAccess> listMenuAccess = new List<UserRoleMenuAccess>();
+                        //List<UserRoleMenuAccess> listMenuPermission = new List<UserRoleMenuAccess>();
 
-                        Role role = _context.Using<Role>().GetByCondition(x => x.Id == obj.RoleId).FirstOrDefault();
+                        UserRole role = _context.Using<UserRole>().GetByCondition(x => x.Id == obj.RoleId).FirstOrDefault();
 
                         if (role == null)
                         {
@@ -62,43 +62,78 @@ namespace PMMS.Areas.Admin.Controllers
 
                             return Json(CommonViewModel);
                         }
-                        else if (role != null && role.Id == 1)
-                        {
-                            listMenuAccess = (from y in _context.Using<Menu>().GetAll().ToList()
-                                              where y.IsActive == true && y.IsDeleted == false
-                                              select new UserMenuAccess() { Id = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, IsCreate = true, IsUpdate = true, IsRead = true, IsDelete = true, DisplayOrder = y.DisplayOrder, IsActive = y.IsActive, IsDeleted = y.IsDeleted, Icon = y.Icon }).ToList();
-                        }
-                        else if (role != null && (role.IsAdmin))
-                        {
-                            listMenuAccess = (from x in _context.Using<UserMenuAccess>().GetAll().ToList()
-                                              join y in _context.Using<Menu>().GetAll().ToList() on x.MenuId equals y.Id
-                                              where x.UserId == obj.Id && x.RoleId == obj.RoleId
-                                              && y.IsActive == true && y.IsDeleted == false && x.IsActive == true && x.IsDeleted == false && y.Name != "Menu"
-                                              && x.IsRead == true
-                                              select new UserMenuAccess() { Id = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, DisplayOrder = y.DisplayOrder, IsActive = x.IsActive, IsDeleted = x.IsDeleted, Icon = y.Icon }).ToList();
-                        }
-                        else if (role != null && !role.IsAdmin && role.IsActive && !role.IsDeleted)
-                        {
-                            listMenuAccess = (from x in _context.Using<UserMenuAccess>().GetAll().ToList()
-                                              join y in _context.Using<Menu>().GetAll().ToList() on x.MenuId equals y.Id
-                                              where x.UserId == obj.Id && x.RoleId == obj.RoleId
-                                              && y.IsActive == true && y.IsDeleted == false && x.IsActive == true && x.IsDeleted == false && y.Id != 1 && y.ParentId != 1 && y.Name != "Menu"
-                                              && x.IsRead == true
-                                              select new UserMenuAccess() { Id = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, DisplayOrder = y.DisplayOrder, IsActive = x.IsActive, IsDeleted = x.IsDeleted, Icon = y.Icon }).ToList();
-                        }
+                        //else if (role != null && role.Id == 1)
+                        //{
+                        //    listMenuAccess = (from y in _context.Using<Menu>().GetAll().ToList()
+                        //                      where y.IsActive == true && y.IsDeleted == false
+                        //                      select new UserRoleMenuAccess() { Id = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, IsCreate = true, IsUpdate = true, IsRead = true, IsDelete = true, DisplayOrder = y.DisplayOrder, IsActive = y.IsActive, IsDeleted = y.IsDeleted, Icon = y.Icon }).ToList();
+                        //}
+                        //else if (role != null && (role.IsAdmin))
+                        //{
+                        //    listMenuAccess = (from x in _context.Using<UserRoleMenuAccess>().GetAll().ToList()
+                        //                      join y in _context.Using<Menu>().GetAll().ToList() on x.MenuId equals y.Id
+                        //                      where x.UserId == obj.Id && x.RoleId == obj.RoleId
+                        //                      && y.IsActive == true && y.IsDeleted == false && x.IsActive == true && x.IsDeleted == false && y.Name != "Menu"
+                        //                      && x.IsRead == true
+                        //                      select new UserRoleMenuAccess() { Id = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, DisplayOrder = y.DisplayOrder, IsActive = x.IsActive, IsDeleted = x.IsDeleted, Icon = y.Icon }).ToList();
+                        //}
+                        //else if (role != null && !role.IsAdmin && role.IsActive && !role.IsDeleted)
+                        //{
+                        //    listMenuAccess = (from x in _context.Using<UserRoleMenuAccess>().GetAll().ToList()
+                        //                      join y in _context.Using<Menu>().GetAll().ToList() on x.MenuId equals y.Id
+                        //                      where x.UserId == obj.Id && x.RoleId == obj.RoleId
+                        //                      && y.IsActive == true && y.IsDeleted == false && x.IsActive == true && x.IsDeleted == false && y.Id != 1 && y.ParentId != 1 && y.Name != "Menu"
+                        //                      && x.IsRead == true
+                        //                      select new UserRoleMenuAccess() { Id = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, DisplayOrder = y.DisplayOrder, IsActive = x.IsActive, IsDeleted = x.IsDeleted, Icon = y.Icon }).ToList();
+                        //}
+
+                        //if (role != null && role.Id == 1)
+                        //    listMenuPermission = listMenuAccess;
+                        //else
+                        //    listMenuPermission = (from x in _context.Using<UserRoleMenuAccess>().GetAll().ToList()
+                        //                          join y in _context.Using<Menu>().GetAll().ToList() on x.MenuId equals y.Id
+                        //                          where x.UserId == obj.Id && y.IsActive == true && y.IsDeleted == false && x.IsActive == true && x.IsDeleted == false
+                        //                          && listMenuAccess.Any(z => z.Id == y.Id)
+                        //                          select new UserRoleMenuAccess() { MenuId = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, IsCreate = x.IsCreate, IsUpdate = x.IsUpdate, IsRead = x.IsRead, IsDelete = x.IsDelete, IsActive = x.IsActive, IsDeleted = x.IsDeleted, Icon = y.Icon }).ToList();
+
+
+                        var menus = _context.Using<Menu>().GetAll().Where(y => y.IsActive && !y.IsDeleted);
 
                         if (role != null && role.Id == 1)
-                            listMenuPermission = listMenuAccess;
+                            listMenuAccess = (from y in menus select new UserRoleMenuAccess() { Id = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, IsCreate = true, IsUpdate = true, IsRead = true, IsDelete = true, DisplayOrder = y.DisplayOrder, IsActive = y.IsActive, IsDeleted = y.IsDeleted, Icon = y.Icon }).ToList();
                         else
-                            listMenuPermission = (from x in _context.Using<UserMenuAccess>().GetAll().ToList()
-                                                  join y in _context.Using<Menu>().GetAll().ToList() on x.MenuId equals y.Id
-                                                  where x.UserId == obj.Id && y.IsActive == true && y.IsDeleted == false && x.IsActive == true && x.IsDeleted == false
-                                                  && listMenuAccess.Any(z => z.Id == y.Id)
-                                                  select new UserMenuAccess() { MenuId = y.Id, ParentMenuId = y.ParentId, Area = y.Area, Controller = y.Controller, Url = y.Url, MenuName = y.Name, IsCreate = x.IsCreate, IsUpdate = x.IsUpdate, IsRead = x.IsRead, IsDelete = x.IsDelete, IsActive = x.IsActive, IsDeleted = x.IsDeleted, Icon = y.Icon }).ToList();
+                        {
+                            var userRoleMenus = _context.Using<UserRoleMenuAccess>().GetAll()
+                                .Where(x => (x.UserId == obj.Id || x.RoleId == obj.RoleId) && x.IsActive && !x.IsDeleted).ToList();
 
-                        Common.Configure_UserMenuAccess(listMenuAccess.Where(x => x.IsActive == true && x.IsDeleted == false).ToList(), listMenuPermission.Where(x => x.IsActive == true && x.IsDeleted == false).ToList());
+                            var query = from x in userRoleMenus
+                                        join y in menus on x.MenuId equals y.Id
+                                        where y.Name != "Menu"
+                                        select new { x, y };
+
+                            //if (!role.IsAdmin) query = query.Where(q => q.y.Id != 1 && q.y.ParentId != 1);
+
+                            listMenuAccess = query
+                                .Select(q => new UserRoleMenuAccess
+                                {
+                                    Id = q.y.Id,
+                                    ParentMenuId = q.y.ParentId,
+                                    Area = q.y.Area,
+                                    Controller = q.y.Controller,
+                                    Url = q.y.Url,
+                                    MenuName = q.y.Name,
+                                    DisplayOrder = q.y.DisplayOrder,
+                                    IsActive = q.x.IsActive,
+                                    IsDeleted = q.x.IsDeleted,
+                                    Icon = q.y.Icon
+                                })
+                                .ToList();
+                        }
+
+                        //Common.Configure_UserMenuAccess(listMenuAccess.Where(x => x.IsActive == true && x.IsDeleted == false).ToList(), listMenuPermission.Where(x => x.IsActive == true && x.IsDeleted == false).ToList());
+
                         Common.Set_Session(SessionKey.KEY_USER_MENUACCESS, JsonConvert.SerializeObject(listMenuAccess));
-                        Common.Set_Session(SessionKey.KEY_USER_MENUPERMISSION, JsonConvert.SerializeObject(listMenuPermission));
+
                         Common.Set_Session_Int(SessionKey.KEY_USER_ID, obj.Id);
                         Common.Set_Session_Int(SessionKey.KEY_USER_ROLE_ID, obj.RoleId);
 
@@ -106,8 +141,6 @@ namespace PMMS.Areas.Admin.Controllers
                         Common.Set_Session(SessionKey.KEY_USER_ROLE, role.Name);
                         Common.Set_Session_Int(SessionKey.KEY_IS_ADMIN, (role.IsAdmin || obj.RoleId == 1 ? 1 : 0));
                         Common.Set_Session_Int(SessionKey.KEY_IS_SUPER_USER, (obj.RoleId == 1 ? 1 : 0));
-
-
 
                         CommonViewModel.IsSuccess = true;
                         CommonViewModel.StatusCode = ResponseStatusCode.Success;
@@ -240,5 +273,5 @@ namespace PMMS.Areas.Admin.Controllers
             return Json(new { IsSuccess = true, Message = "Password reset successfully." });
         }
 
-       }
+    }
 }

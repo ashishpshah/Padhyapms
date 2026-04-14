@@ -13,12 +13,9 @@ namespace PMMS
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id { get; set; }
 
-		[NotMapped] public string UserId { get; set; }
 		public string UserName { get; set; }
 		public string Password { get; set; }
         public string? Email { get; set; }
-        //public string MobileNo { get; set; }
-        //public long? RoleId { get; set; }
 
         public Nullable<int> No_Of_Wrong_Password_Attempts { get; set; }
 		public Nullable<DateTime> Next_Change_Password_Date { get; set; }

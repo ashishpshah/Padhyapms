@@ -21,8 +21,8 @@ internal class Program
         });
 
         builder.Services.AddHttpClient();
-
         builder.Services.AddHttpContextAccessor();
+        builder.Services.AddDataProtection();
 
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {

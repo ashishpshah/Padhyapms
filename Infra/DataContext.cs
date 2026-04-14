@@ -31,26 +31,79 @@ namespace PMMS.Infra
         {
             //modelBuilder.HasDefaultSchema("padhyaso_Leoz");
 
-
-
-            modelBuilder.Entity<LOV>(entity =>
+            modelBuilder.Entity<Menu>(entity =>
             {
-                entity.ToTable("LOV", "dbo");
+                entity.HasKey(e => new { e.Id, e.ParentId });
+
+                entity.ToTable("Menu", "dbo");
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
             });
 
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Roles", "dbo");
 
+                entity.Property(e => e.Name).HasMaxLength(50);
+                entity.Property(e => e.ProjectDetailTypeAccess).HasMaxLength(500);
+            });
 
-            modelBuilder.Entity<UserRoleMapping>().ToTable("UserRoleMapping");
-            modelBuilder.Entity<Menu>().ToTable("Menu");
-            modelBuilder.Entity<UserMenuAccess>().ToTable("UserMenuAccess");
-            modelBuilder.Entity<RoleMenuAccess>().ToTable("RoleMenuAccess");
-            modelBuilder.Entity<User>().HasKey(e => new { e.Id });
-            modelBuilder.Entity<Role>().HasKey(e => new { e.Id });
-            modelBuilder.Entity<UserRoleMapping>().HasKey(e => new { e.Id });
-            modelBuilder.Entity<Menu>().HasKey(e => new { e.Id });
-            modelBuilder.Entity<UserMenuAccess>().HasKey(e => new { e.UserId, e.RoleId, e.MenuId, e.IsCreate, e.IsUpdate, e.IsRead, e.IsDelete });
-            modelBuilder.Entity<RoleMenuAccess>().HasKey(e => new { e.RoleId, e.MenuId, e.IsCreate, e.IsUpdate, e.IsRead, e.IsDelete });
-            modelBuilder.Entity<LOV>().HasNoKey();
+            modelBuilder.Entity<RoleMenuAccess>(entity =>
+            {
+                entity.HasNoKey().ToTable("RoleMenuAccess", "dbo");
+            });
+
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.ToTable("UserRoles", "dbo");
+
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.Property(e => e.Name).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("Users", "dbo");
+
+                entity.Property(e => e.CreatedBy).HasDefaultValue(0L);
+                entity.Property(e => e.Email).HasMaxLength(50).IsUnicode(false);
+                entity.Property(e => e.LastModifiedBy).HasDefaultValue(0L);
+                entity.Property(e => e.Next_Change_Password_Date).HasColumnName("Next_Change_Password_Date");
+                entity.Property(e => e.No_Of_Wrong_Password_Attempts).HasColumnName("No_Of_Wrong_Password_Attempts");
+            });
+
+            modelBuilder.Entity<UserMenuAccess>(entity =>
+            {
+                entity.HasNoKey().ToTable("UserMenuAccess", "dbo");
+            });
+
+            modelBuilder.Entity<UserRoleMapping>(entity =>
+            {
+                entity.ToTable("UserRoleMapping", "dbo");
+            });
+
+            modelBuilder.Entity<UserRoleMenuAccess>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId, e.MenuId });
+
+                entity.ToTable("UserRoleMenuAccess", "dbo");
+
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+            });
+
+            //modelBuilder.Entity<UserRoleMapping>().ToTable("UserRoleMapping");
+            //modelBuilder.Entity<Menu>().ToTable("Menu");
+            //modelBuilder.Entity<UserMenuAccess>().ToTable("UserMenuAccess");
+            //modelBuilder.Entity<RoleMenuAccess>().ToTable("RoleMenuAccess");
+            //modelBuilder.Entity<User>().HasKey(e => new { e.Id });
+            //modelBuilder.Entity<Role>().HasKey(e => new { e.Id });
+            //modelBuilder.Entity<UserRoleMapping>().HasKey(e => new { e.Id });
+            //modelBuilder.Entity<Menu>().HasKey(e => new { e.Id });
+            //modelBuilder.Entity<UserMenuAccess>().HasKey(e => new { e.UserId, e.RoleId, e.MenuId, e.IsCreate, e.IsUpdate, e.IsRead, e.IsDelete });
+            //modelBuilder.Entity<RoleMenuAccess>().HasKey(e => new { e.RoleId, e.MenuId, e.IsCreate, e.IsUpdate, e.IsRead, e.IsDelete });
+            //modelBuilder.Entity<LOV>().HasNoKey();
 
             base.OnModelCreating(modelBuilder);
         }
