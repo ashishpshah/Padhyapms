@@ -163,5 +163,33 @@ namespace PMMS.Areas.Admin.Controllers
 
             return Json(CommonViewModel);
         }
+        [HttpPost]
+        //[CustomAuthorizeAttribute(AccessType_Enum.Delete)]
+        public ActionResult DeleteConfirmed_Service_CheckList(long Id, long ServiceId)
+        {
+            try
+            {
+                if (true)
+                {
+                    var (IsSuccess, response) = ServiceServices.Delete_ServiceCheckList(Id);
+
+                    CommonViewModel.IsConfirm = IsSuccess;
+                    CommonViewModel.IsSuccess = IsSuccess;
+                    CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+                    CommonViewModel.Message = response;
+
+                    CommonViewModel.Data1 = Id; // Return the deleted Invoice_Detail Id to remove the row from UI
+                    
+                    return Json(CommonViewModel);
+                }
+            }
+            catch (Exception ex) { }
+
+            CommonViewModel.IsSuccess = false;
+            CommonViewModel.StatusCode = ResponseStatusCode.Error;
+            CommonViewModel.Message = ResponseStatusMessage.Unable_Delete;
+
+            return Json(CommonViewModel);
+        }
     }
 }

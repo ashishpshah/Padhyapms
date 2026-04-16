@@ -98,9 +98,12 @@
             
 
             let newRow = `<tr id="${newRowId}">
-            <td><input type="text" id="ServiceChecklist_${rowCount}_ItemName" name="ServiceChecklist[${rowCount}].ItemName" class="form-control" value=""  /></td>
-            <td><input type="text" id="ServiceChecklist_${rowCount}_DisplayOrder" name="ServiceChecklist[${rowCount}].DisplayOrder" class="form-control isNumberKey" value="" onkeyup="calculateRow(this)" /></td>
-            <td><div><button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete">
+            <td>
+                <input type="hidden" id="ServiceChecklist_${rowCount}_Id" name="Invoice_Detail[${rowCount}].Id" class="form-control ChecklistId" value="" />
+                <input type="hidden" id="ServiceChecklist_${rowCount}_ServiceId" name="Invoice_Detail[${rowCount}].ServiceId" class="form-control" />
+                <input type="text" id="ServiceChecklist_${rowCount}_ItemName" name="ServiceChecklist[${rowCount}].ItemName" class="form-control" value=""  /></td>
+            <td><input type="text" id="ServiceChecklist_${rowCount}_DisplayOrder" name="ServiceChecklist[${rowCount}].DisplayOrder" class="form-control isNumberKey" value=""/></td>
+            <td><div><button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(this)">
             <i class="ri-delete-bin-2-line"></i></button></div></td></tr>`;
 
 
@@ -110,9 +113,36 @@
             rowCount++;
         }
 
-        $(document).on('click', '.deletebtn', function () {
-        	$(this).closest('tr').remove(); // Find the closest row (<tr>) to the clicked delete button and remove it
-        });
+        // $(document).on('click', '.deletebtn', function () {
+          // 	$(this).closest('tr').remove(); // Find the closest row (<tr>) to the clicked delete button and remove it
+          // });
+
+          function deleteRow(btn) {
+
+              if ($("#ServiceChecklist_Table tbody tr:visible").length > 1) {
+
+                  var serviceid = $("#Id").val();
+                  var dtls_id = $(btn).closest('tr').find('input.ChecklistId').val();
+
+                  if(serviceid != null && serviceid !== '' && Number(serviceid) > 0 && dtls_id != null && dtls_id !== '' && Number(dtls_id) > 0) {
+
+                      var url = '@Url.Action("DeleteConfirmed_Service_CheckList", "Service", new { area = "Admin" })' + '?Id=' + dtls_id + '&ServiceId=' + serviceid;
+
+                      fnDelete_Confirm(url);
+                  }
+                  else
+                  {
+                      $(btn).closest('tr').remove();
+                     
+                  }
+              }
+              else CommonAlert_Error("At least one service checklist  item must remain.");
+          }
+          function fnDelete_Success($response)
+          {
+            $('input.ChecklistId[value='+$response.Data1+']').closest('tr').remove();
+            calculateInvoiceTotals();
+          }
     </script>
 }
 

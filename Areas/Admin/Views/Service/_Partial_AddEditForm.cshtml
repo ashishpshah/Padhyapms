@@ -90,7 +90,7 @@
 												{
 													<tr id="tr_@i">
 														<td>
-															<input type="hidden" id="ServiceChecklist_@(i)_Id" name="ServiceChecklist[@i].Id" class="form-control ServiceChecklist_Id" value="@Model.Obj.ServiceChecklist[i].Id" />
+															<input type="hidden" id="ServiceChecklist_@(i)_Id" name="ServiceChecklist[@i].Id" class="form-control ChecklistId" value="@Model.Obj.ServiceChecklist[i].Id" />
 															<input type="hidden" id="ServiceChecklist_@(i)_ServiceId" name="ServiceChecklist[@i].ServiceId" class="form-control" value="@Model.Obj.ServiceChecklist[i].ServiceId" />
 															<input type="text" id="ServiceChecklist_@(i)_ItemName" name="ServiceChecklist[@i].ItemName" class="form-control" value="@Model.Obj.ServiceChecklist[i].ItemName" />
 														</td>
@@ -117,7 +117,7 @@
 													<td><input type="text" id="ServiceChecklist_@(trid)_DisplayOrder" name="ServiceChecklist[@trid].DisplayOrder" class="form-control isNumberKey" value="" /></td>
 													<td>
 														<div class="btn-group">
-															<button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete">
+															<button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(this)">
 																<i class="ri-delete-bin-2-line"></i>
 															</button>
 														</div>

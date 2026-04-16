@@ -1,0 +1,181 @@
+﻿
+@model ResponseModel<Project>
+
+@{
+    Layout = null;
+}
+
+<div class="col-md-12" style="margin-bottom: -21px;">
+    <div class="card card-info">
+
+        <div class="card-header">
+            <h3 class="card-title">@(Model.Obj != null && Model.Obj.Id > 0 ? "Edit" : "Create") Project</h3>
+            <input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+            <input type="text" class="form-control d-none" id="IsEdit" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ?  "Y": "N")">
+        </div>
+        <div class="card-body form-horizontal">
+           <div class="form-group row mt-1">
+              <label class="col-sm-2 col-form-label text-left">Project Title<span style="color:red">*</span></label>
+              <div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" id="ProjectTitle" name="ProjectTitle" value="@Model.Obj?.ProjectTitle" placeholder="Project Title" autocomplete="off" />
+              </div>
+                <label class="col-sm-2 col-form-label text-left">Client<span style="color:red">*</span></label>
+                <div class="col-sm-4">
+					<select id="ClientId" name="ClientId" class="form-control form-control-sm select2">
+						<option value="0">-- Select --</option>
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "Client"))
+							{
+								if (Model.Obj.ClientId.ToString() == item.Value)
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div>
+                        
+           </div>
+            <div class="form-group row mt-1">
+                <label class="col-sm-2 col-form-label text-left">Budget</label>
+                <div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm isNumberKey_Decimal" id="Budget" name="Budget" value="@Model.Obj?.Budget" placeholder="Budget" autocomplete="off" />
+                </div>
+                <label class="col-sm-2 col-form-label text-left">Timeline</label>
+                <div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" id="Timeline" name="Timeline" value="@Model.Obj?.Timeline" placeholder="Timeline" autocomplete="off" />
+                </div>
+            </div>
+            <div class="form-group row mt-1">
+                <label class="col-sm-2 col-form-label text-left">Start Date</label>
+                <div class="col-sm-4">
+					<input type="date" class="form-control form-control-sm" id="StartDate" name="StartDate" value="@Model.Obj?.StartDate?.ToString("yyyy-MM-dd")" placeholder="Start Date" autocomplete="off" />
+                </div>
+				<label class="col-sm-2 col-form-label text-left">End Date</label>
+				<div class="col-sm-4">
+					<input type="date" class="form-control form-control-sm" id="EndDate" name="EndDate" value="@Model.Obj?.EndDate?.ToString("yyyy-MM-dd")" placeholder="End Date" autocomplete="off" />
+				</div>
+            </div>
+            <div class="form-group row mt-1">
+                <label class="col-sm-2 col-form-label text-left">Priority</label>
+                <div class="col-sm-4">
+					<select id="Priority" name="Priority" class="form-control form-control-sm select2">
+						<option value="0">-- Select --</option>
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "PRIORITY"))
+							{
+								if (Model.Obj.Priority.ToString() == item.Value)
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div>
+				<label class="col-sm-2 col-form-label text-left">Status</label>
+				<div class="col-sm-4">
+					<select id="Status" name="Status" class="form-control form-control-sm select2" @(Model.Obj.Status == "1" ? "disabled" : "")>
+						<option value="0">-- Select --</option>
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "PROJECTSTATUS"))
+							{
+								if (Model.Obj.Status.ToString() == item.Value)
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+					<input type="hidden" id="StatusHidden" name="Status" value="@Model.Obj.Status" />
+				</div>
+            </div>
+			<div class="form-group row mt-1">
+				<label class="col-sm-2 col-form-label text-left">Description <span style="color:red">*</span></label>
+				<div class="col-sm-10">
+					<textarea rows="4" class="form-control form-control-sm" id="Description" name="Description" value="@Model.Obj?.Description" placeholder="Description" autocomplete="off">@Model.Obj.Description</textarea>
+				</div>
+			</div>
+			<div class="form-group row mt-1">
+				<label class="col-sm-2 col-form-label text-left">Services <span style="color:red">*</span></label>
+				<div class="col-sm-8">
+					<select id="Service_Ids" name="Service_Ids" class="form-control select2_multiple w-100" data-selected="@Model.Obj.Service_Ids" onchange="loadProjectFeatures(this)">
+						<option value="0">-- Select --</option>
+						@if (Model.SelectListItems != null && Model.SelectListItems.Count > 0)
+						{
+							var selectedValue = Model.Obj.Service_Ids != null ? Model.Obj.Service_Ids.Split(',').ToList() : null;
+							foreach (SelectListItem_Custom item in Model.SelectListItems.Where(x => x.Group == "Service"))
+							{
+								if (selectedValue != null && selectedValue.Any(x => x == item.Value))
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div>
+			</div>
+			<!-- Project Feature Section -->
+			<div id="projectFeatureSection" class="d-none">
+				<div class="form-group row mt-1">
+					<div class="card mt-3">
+
+						<div class="card-header">
+							<h5 class="mb-0">Project Features</h5>
+						</div>
+
+						<div class="card-body pt-2">
+							<div class="table-responsive">
+								<table class="table table-bordered table-sm w-100" id="ProjectFeatureList_Table">
+									<thead>
+										<tr>
+											<th>Feature Name</th>
+											<th>Is Included</th>
+											<th>Notes</th>
+										</tr>
+									</thead>
+									<tbody>
+										<!-- JS will fill -->
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			
+        </div>
+            <div class="card-footer text-center">               
+                        <button type="button" class="btn btn-success btnSubmit">Save</button>
+				<button type="button" class="btn btn-danger" onclick="fnBackToList('@Url.Action("Index", "Project", new { area = "Admin" })');">Cancel</button>
+            </div>
+	</div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+        });
+
+    </script>
+}

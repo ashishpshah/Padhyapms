@@ -116,6 +116,7 @@ namespace PMMS.Areas.Admin.Services
                     parameters.Add(new SqlParameter("BestFor", SqlDbType.NVarChar) { Value = obj.BestFor ?? "", Direction = ParameterDirection.Input, IsNullable = true });
                     parameters.Add(new SqlParameter("Technologies", SqlDbType.NVarChar) { Value = obj.Technologies ?? "", Direction = ParameterDirection.Input, IsNullable = true });
                     parameters.Add(new SqlParameter("Type_ServiceChecklist", SqlDbType.Structured) { Value = ServiceChecklist_table, Direction = ParameterDirection.Input, IsNullable = true });
+                    parameters.Add(new SqlParameter("DisplayOrder", SqlDbType.Int) { Value = obj.DisplayOrder, Direction = ParameterDirection.Input, IsNullable = true });
                     parameters.Add(new SqlParameter("Operated_By", SqlDbType.BigInt)
                     {
                         Value = Common.Get_Session_Int(SessionKey.KEY_USER_ID),
@@ -175,6 +176,47 @@ namespace PMMS.Areas.Admin.Services
                     var strid = response.Split('|').Length > 2 ? response.Split('|')[2].Replace("\"", "") ?? "0" : "0";
 
                     
+
+                    return (msgtype.Contains("S"), message);
+                }
+                catch (Exception ex)
+                {
+                    LogEntry.InsertLogEntryFromException(ex, controllerName, actionName, clientIp);
+                }
+
+            return (false, ResponseStatusMessage.Error);
+        }
+
+
+        public static (bool, string) Delete_ServiceCheckList(long Id = 0)
+        {
+            string actionName = "Delete";
+            string controllerName = "Service";
+            string clientIp = AppHttpContextAccessor.AppHttpContext?
+                .Connection?
+                .RemoteIpAddress?
+                .ToString();
+
+            if (Id > 0)
+                try
+                {
+                    var parameters = new List<SqlParameter>();
+
+                    parameters.Add(new SqlParameter("Id", SqlDbType.BigInt) { Value = Id, Direction = ParameterDirection.Input, IsNullable = true });
+                    parameters.Add(new SqlParameter("Operated_By", SqlDbType.BigInt)
+                    {
+                        Value = Common.Get_Session_Int(SessionKey.KEY_USER_ID),
+                        Direction = ParameterDirection.Input,
+                        IsNullable = true
+                    });
+
+                    var response = DataContext_Command.ExecuteStoredProcedure("SP_Services_Checklist_Delete", parameters.ToArray(), actionName, controllerName);
+
+                    var msgtype = response.Split('|').Length > 0 ? response.Split('|')[0] : "";
+                    var message = response.Split('|').Length > 1 ? response.Split('|')[1].Replace("\"", "") : "";
+                    var strid = response.Split('|').Length > 2 ? response.Split('|')[2].Replace("\"", "") ?? "0" : "0";
+
+
 
                     return (msgtype.Contains("S"), message);
                 }

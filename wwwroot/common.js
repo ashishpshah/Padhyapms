@@ -874,6 +874,7 @@ function fnLoadParialView($id, url) {
 
                         $('#' + $id + ' select').on('select2:open', function () { var container = $('#' + $id + ' select.select2-container').last(); });
 
+
                         try { fnFileUpload(".input-file"); } catch { }
                         try { fnFileUpload(".input-file-partial"); } catch { }
 
